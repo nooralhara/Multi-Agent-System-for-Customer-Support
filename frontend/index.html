@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechStore | Multi-Agent AI</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              purple: '#A855F7',
+              orange: '#F97316',
+              cyan: '#06B6D4',
+              dark: '#0B0F19',
+              card: '#111827',
+              border: '#1F2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #374151; }
+
+    .glassmorphism {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    /* Smooth markdown parsing for the generated text */
+    .prose strong { color: #f8fafc; font-weight: 600; }
+    .prose p { margin-bottom: 0.5rem; }
+    .prose p:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body class="bg-brand-dark text-slate-100 flex flex-col h-screen overflow-hidden font-sans antialiased selection:bg-brand-purple selection:text-white">
+
+  <!-- Ambient Glow Effects -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 -right-32 w-96 h-96 bg-cyan-600/15 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-orange-600/15 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Header & Live Pipeline Visualizer -->
+  <header class="glassmorphism sticky top-0 z-20 border-b border-white/10 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-cyan-500 to-orange-500 p-0.5 shadow-lg shadow-purple-500/20">
+        <div class="w-full h-full bg-brand-dark rounded-[10px] flex items-center justify-center">
+          <i data-lucide="bot" class="w-5 h-5 text-cyan-400"></i>
+        </div>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold tracking-wide bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+          TechStore Multi-Agent System
+        </h1>
+        <p class="text-xs text-slate-400 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          OpenRouter Connected
+        </p>
+      </div>
+    </div>
+
+    <!-- Active Pipeline Stage Tracker -->
+    <div class="flex items-center gap-2 bg-slate-900/80 px-4 py-2 rounded-full border border-slate-800 text-xs">
+      <span class="text-slate-400 font-medium mr-1">Pipeline:</span>
+      
+      <div id="badge-router" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 transition-all duration-300">
+        <i data-lucide="network" class="w-3.5 h-3.5"></i>
+        <span>Routing</span>
+      </div>
+      
+      <i data-lucide="arrow-right" class="w-3 h-3 text-slate-600"></i>
+      
+      <div id="badge-support" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 transition-all duration-300">
+        <i data-lucide="headset" class="w-3.5 h-3.5"></i>
+        <span>Support</span>
+      </div>
+      
+      <div id="badge-product" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 transition-all duration-300">
+        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+        <span>Product</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Chat Log Area -->
+  <main class="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-5xl w-full mx-auto z-10 flex flex-col gap-5" id="chat-box">
+    
+    <!-- Welcome Greeting Message -->
+    <div class="flex gap-4 items-start">
+      <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0 mt-1 shadow-lg shadow-purple-500/10">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+      </div>
+      <div class="flex flex-col gap-2 max-w-2xl">
+        <div class="glassmorphism p-4 rounded-2xl rounded-tl-sm text-slate-200 text-sm leading-relaxed shadow-xl">
+          Welcome to the TechStore assistant! Ask about store policies, look up past orders, or search our product catalog. I will automatically route your request to the right agent.
+        </div>
+        
+        <!-- Preset Prompt Buttons -->
+        <div class="flex flex-wrap gap-2 mt-1">
+          <button onclick="sendQuickPrompt('What is your return policy?')" class="text-xs px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-300 transition hover:border-purple-500/50">
+            📄 Return Policy
+          </button>
+          <button onclick="sendQuickPrompt('Where is order O0001?')" class="text-xs px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-300 transition hover:border-orange-500/50">
+            📦 Track Order O0001
+          </button>
+          <button onclick="sendQuickPrompt('Show me laptops under $800 with 16GB RAM')" class="text-xs px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 text-slate-300 transition hover:border-cyan-500/50">
+            💻 Find Laptops
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Query Input Box -->
+  <footer class="p-4 md:px-8 max-w-5xl w-full mx-auto z-10">
+    <form id="chat-form" onsubmit="handleSend(event)" class="glassmorphism p-2 rounded-2xl flex items-center gap-3 border border-white/10 shadow-2xl focus-within:border-cyan-500/60 transition-colors">
+      <input 
+        id="user-input" 
+        type="text" 
+        placeholder="Ask about TechStore products, orders, or policies..."
+        autocomplete="off"
+        class="flex-1 bg-transparent px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none"
+      />
+      <button 
+        type="submit" 
+        id="send-btn"
+        class="w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white flex items-center justify-center shadow-lg shadow-cyan-500/25 transition active:scale-95 disabled:opacity-50 disabled:grayscale"
+      >
+        <i data-lucide="send" class="w-4 h-4"></i>
+      </button>
+    </form>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const badgeRouter = document.getElementById('badge-router');
+    const badgeSupport = document.getElementById('badge-support');
+    const badgeProduct = document.getElementById('badge-product');
+
+    // Basic markdown parser for bold and line breaks from Gemini output
+    function parseMarkdown(text) {
+      let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\n/g, '<br>');
+      return `<div class="prose">${html}</div>`;
+    }
+
+    function resetPipelineBadges() {
+      const defaultClass = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 transition-all duration-300";
+      badgeRouter.className = defaultClass;
+      badgeSupport.className = defaultClass;
+      badgeProduct.className = defaultClass;
+    }
+
+    function setBadgeActive(type) {
+      resetPipelineBadges();
+      if (type === 'routing' || type === 'ambiguous') {
+        badgeRouter.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-lg shadow-purple-500/20";
+      } 
+      if (type === 'support' || type === 'ambiguous') {
+        badgeSupport.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40 shadow-lg shadow-orange-500/20";
+      } 
+      if (type === 'product' || type === 'ambiguous') {
+        badgeProduct.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg shadow-cyan-500/20";
+      }
+    }
+
+    function appendUserMessage(text) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = "flex justify-end gap-3 items-end";
+      msgDiv.innerHTML = `
+        <div class="bg-gradient-to-r from-slate-700 to-slate-600 text-white text-sm px-4 py-3 rounded-2xl rounded-br-sm max-w-lg shadow-lg border border-slate-600/50">
+          ${text}
+        </div>
+      `;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendAgentTyping(agentName, colorClass, borderClass, textClass) {
+      removeAgentTyping();
+      const typingDiv = document.createElement('div');
+      typingDiv.id = "active-typing-indicator";
+      typingDiv.className = "flex gap-4 items-start";
+      typingDiv.innerHTML = `
+        <div class="w-9 h-9 rounded-xl ${colorClass} border ${borderClass} flex items-center justify-center ${textClass} shrink-0 mt-1 animate-pulse">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <div class="glassmorphism px-4 py-3 rounded-2xl rounded-tl-sm text-slate-300 text-sm flex items-center gap-2">
+          <span class="font-medium ${textClass}">${agentName}</span> is analyzing
+          <span class="inline-flex gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.4s]"></span>
+          </span>
+        </div>
+      `;
+      chatBox.appendChild(typingDiv);
+      lucide.createIcons();
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeAgentTyping() {
+      const typing = document.getElementById('active-typing-indicator');
+      if (typing) typing.remove();
+    }
+
+    function appendAgentResponse(agentType, content) {
+      removeAgentTyping();
+      
+      let theme = {
+        name: 'Combined Agents',
+        icon: 'bot',
+        colorClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+        borderLeft: 'border-l-purple-500'
+      };
+
+      if (agentType === 'support') {
+        theme = { name: 'Support Agent', icon: 'headset', colorClass: 'bg-orange-500/20 text-orange-400 border-orange-500/30', borderLeft: 'border-l-orange-500' };
+      } else if (agentType === 'product') {
+        theme = { name: 'Product Agent', icon: 'shopping-bag', colorClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', borderLeft: 'border-l-cyan-500' };
+      }
+
+      const formattedContent = parseMarkdown(content);
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = "flex gap-4 items-start";
+      msgDiv.innerHTML = `
+        <div class="w-9 h-9 rounded-xl ${theme.colorClass} border flex items-center justify-center shrink-0 mt-1 shadow-lg">
+          <i data-lucide="${theme.icon}" class="w-5 h-5"></i>
+        </div>
+        <div class="flex flex-col gap-1 max-w-2xl w-full">
+          <span class="text-xs font-semibold tracking-wider text-slate-400 ml-1">${theme.name}</span>
+          <div class="glassmorphism p-4 rounded-2xl rounded-tl-sm text-slate-200 text-sm leading-relaxed shadow-xl border-l-2 ${theme.borderLeft}">
+            ${formattedContent}
+          </div>
+        </div>
+      `;
+      chatBox.appendChild(msgDiv);
+      lucide.createIcons();
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function handleSend(e) {
+      if (e) e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      // Lock UI
+      userInput.value = '';
+      userInput.disabled = true;
+      sendBtn.disabled = true;
+
+      // Render user message and start routing animation
+      appendUserMessage(text);
+      setBadgeActive('routing');
+      appendAgentTyping('Routing Agent', 'bg-purple-500/20', 'border-purple-500/30', 'text-purple-400');
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+
+        if (!response.ok) throw new Error("Network response was not ok");
+        
+        const data = await response.json();
+        
+        // Since the backend handles it synchronously, we'll simulate the "handoff" visual here
+        // by briefly showing the final agent "typing" before displaying the answer
+        setBadgeActive(data.route);
+        
+        let agentName = 'Combined Agents';
+        let bgClass = 'bg-purple-500/20';
+        let borderClass = 'border-purple-500/30';
+        let textClass = 'text-purple-400';
+
+        if (data.route === 'support') {
+           agentName = 'Support Agent'; bgClass = 'bg-orange-500/20'; borderClass = 'border-orange-500/30'; textClass = 'text-orange-400';
+        } else if (data.route === 'product') {
+           agentName = 'Product Agent'; bgClass = 'bg-cyan-500/20'; borderClass = 'border-cyan-500/30'; textClass = 'text-cyan-400';
+        }
+
+        appendAgentTyping(agentName, bgClass, borderClass, textClass);
+
+        // Add a tiny delay to make the handoff visual noticeable
+        setTimeout(() => {
+          appendAgentResponse(data.route, data.answer);
+          resetPipelineBadges();
+        }, 600);
+
+      } catch (error) {
+        console.error("Error communicating with backend:", error);
+        removeAgentTyping();
+        appendAgentResponse('routing', "⚠️ Connection error: Make sure your FastAPI backend is running.");
+        resetPipelineBadges();
+      } finally {
+        // Unlock UI
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    function sendQuickPrompt(prompt) {
+      userInput.value = prompt;
+      handleSend();
+    }
+  </script>
+</body>
+</html>
