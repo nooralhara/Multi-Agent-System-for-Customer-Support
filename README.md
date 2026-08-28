@@ -42,13 +42,21 @@ Frontend: HTML + Tailwind CSS + JS
 
 backend/
   config.py            # loads .env
+  
   openrouter_client.py # all OpenRouter API calls
+  
   document_loader.py   # extracts + chunks the policy PDFs
+  
   orders_tool.py        # order ID extraction + CSV lookup, no LLM involved
+  
   vector_store.py       # Chroma-backed VectorStore class
+  
   routing_agent.py      # classifies each message: support / product / ambiguous
+  
   support_agent.py      # order lookups + policy RAG
+  
   product_agent.py      # product catalog RAG
+  
   main.py                # FastAPI app, startup hook, /chat endpoint, static serving
   
 data/
